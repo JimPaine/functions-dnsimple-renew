@@ -1,38 +1,3 @@
-resource "tls_private_key" "private_key" {
-  algorithm = "RSA"
-}
-
-resource "acme_registration" "demo" {
-  account_key_pem = "${tls_private_key.private_key.private_key_pem}"
-  email_address   = "${var.email}"
-}
-
-
-resource "dnsimple_record" "demo" {
-  domain = "${var.domain}"
-  name   = "cert"
-  value  = "${azurerm_function_app.demo.default_hostname}"
-  type   = "CNAME"
-  ttl    = 3600
-
-  provisioner "local-exec" {
-    command = "sleep 30s"
-  }
-}
-
-resource "acme_certificate" "demo" {
-  account_key_pem           = "${acme_registration.demo.account_key_pem}"
-  common_name               = "${dnsimple_record.demo.hostname}"
-
-  dns_challenge {
-    provider = "dnsimple"
-
-    config {
-        DNSIMPLE_OAUTH_TOKEN = "${var.dnsimple_auth_token}"
-    }    
-  }
-}
-
 resource "azurerm_resource_group" "demo" {
   name     = "${var.resource_name}"
   location = "westeurope"
@@ -88,62 +53,7 @@ resource "azurerm_app_service_custom_hostname_binding" "demo" {
   resource_group_name = "${azurerm_resource_group.demo.name}"
 }
 
-data "azurerm_client_config" "demo" {}
 
-resource "azurerm_key_vault" "demo" {
-  name                = "${var.resource_name}${random_id.demo.dec}vault"
-  location            = "${azurerm_resource_group.demo.location}"
-  resource_group_name = "${azurerm_resource_group.demo.name}"
-  tenant_id           = "${data.azurerm_client_config.demo.tenant_id}"
-  
-  enabled_for_template_deployment = true
-
-  sku {
-    name = "standard"
-  }
-}
-
-resource "azurerm_key_vault_access_policy" "terraformclient" {
-  vault_name          = "${azurerm_key_vault.demo.name}"
-  resource_group_name = "${azurerm_key_vault.demo.resource_group_name}"
-
-  tenant_id = "${data.azurerm_client_config.demo.tenant_id}"
-  object_id = "${data.azurerm_client_config.demo.service_principal_object_id}"
-
-  key_permissions = []
-
-  secret_permissions = [
-      "list",
-      "set",
-      "get",
-    ]
-}
-
-data "azuread_service_principal" "arm" {
-  application_id = "abfa0a7c-a6b6-4736-8310-5855508787cd"
-}
-
-resource "azurerm_key_vault_access_policy" "app" {
-  vault_name          = "${azurerm_key_vault.demo.name}"
-  resource_group_name = "${azurerm_key_vault.demo.resource_group_name}"
-
-  tenant_id = "${data.azurerm_client_config.demo.tenant_id}"
-  object_id = "${data.azuread_service_principal.arm.id}"
-
-  key_permissions = []
-
-  secret_permissions = [
-      "list",
-      "get",
-    ]
-}
-
-resource "azurerm_key_vault_secret" "cert" {
-  name      = "cert"
-  value     = "${acme_certificate.demo.certificate_p12}=="
-  key_vault_id = "${azurerm_key_vault.demo.id}"
-  content_type = "application/x-pkcs12"
-}
 
 resource "azurerm_template_deployment" "demo" {
   name                = "${var.resource_name}${random_id.demo.dec}cert"
