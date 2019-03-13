@@ -12,8 +12,8 @@ In scenarios like when creating AKS clusters you will need your Terraform client
 
 Create a new variable group with the below:
 
-| Name                        | Value          | Comment         |
-| --------------------------- |:--------------:| -------------  |
+| Name                        | Value          | Comment       |
+| --------------------------- |:--------------:| ------------- |
 | client_id                   | Variable Group |  |
 | client_secret |
 | tenant_id |

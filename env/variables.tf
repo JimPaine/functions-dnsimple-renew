@@ -4,6 +4,7 @@ variable "client_id" {}
 variable "client_secret" {}
 variable "tenant_id" {}
 variable "dnsimple_auth_token" {}
+variable "dnsimple_account" {}
 variable "domain" {}
 variable "email" {}
 variable "hostname" {}

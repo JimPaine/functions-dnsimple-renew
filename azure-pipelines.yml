@@ -1,7 +1,6 @@
 queue:
   name: Hosted Ubuntu 1604
 
-
 variables:
   - group: 'Terraform Service Principal'
   - group: 'Terraform State'

@@ -10,6 +10,8 @@ resource "acme_registration" "demo" {
 resource "acme_certificate" "demo" {
   account_key_pem           = "${acme_registration.demo.account_key_pem}"
   common_name               = "${dnsimple_record.demo.hostname}"
+  
+  certificate_p12_password = ""
 
   dns_challenge {
     provider = "dnsimple"

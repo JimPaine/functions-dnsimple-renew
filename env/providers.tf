@@ -1,5 +1,6 @@
 provider "acme" {
   server_url = "https://acme-v02.api.letsencrypt.org/directory"
+  version = "~>1.1.1"
 }
 
 provider "azurerm" {
@@ -24,5 +25,5 @@ provider "random" {
 
 provider "dnsimple" {
   token = "${var.dnsimple_auth_token}"
-  account = "79986"
+  account = "${var.dnsimple_account}"
 }
